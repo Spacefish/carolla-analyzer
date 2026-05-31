@@ -1,5 +1,5 @@
-*.zip
 node_modules/
 dist/
-tmpy*/
+.DS_Store
+test/screenshots/
 test-results/

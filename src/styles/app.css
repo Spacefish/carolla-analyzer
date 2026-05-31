@@ -240,6 +240,22 @@ body {
   margin-top: 20px;
 }
 
+.dashboard-grid-cons {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.chart-controls {
+  display: flex;
+  gap: 4px;
+}
+
+.chart-btn {
+  padding: 4px 12px;
+  font-size: 12px;
+}
+
 .chart-container {
   height: 300px;
   width: 100%;

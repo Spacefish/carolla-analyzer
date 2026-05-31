@@ -5,12 +5,111 @@ import { navigate } from '../router.js';
 import { formatDuration, formatLPer100km } from '../utils/format.js';
 
 let charts = [];
+let consChart = null;
+let currentGroup = 'day';
 
 function disposeCharts() {
   for (const c of charts) {
     try { c.dispose(); } catch {}
   }
   charts = [];
+  consChart = null;
+}
+
+function getWeekNumber(date) {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() + 3 - (d.getDay() + 6) % 7);
+  const week1 = new Date(d.getFullYear(), 0, 4);
+  return `${d.getFullYear()}-W${String(1 + Math.round(((d - week1) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7)).padStart(2, '0')}`;
+}
+
+function groupTrips(trips, mode) {
+  const groups = {};
+
+  for (const trip of trips) {
+    if (trip.distanceKm <= 0 || !trip.startTime) continue;
+    const d = new Date(trip.startTime);
+    if (isNaN(d.getTime())) continue;
+
+    let key;
+    if (mode === 'day') {
+      key = trip.startTime.slice(0, 10);
+    } else if (mode === 'week') {
+      key = getWeekNumber(d);
+    } else {
+      key = trip.startTime.slice(0, 7);
+    }
+
+    if (!groups[key]) groups[key] = { fuelSum: 0, distSum: 0, count: 0 };
+    groups[key].fuelSum += trip.fuelL;
+    groups[key].distSum += trip.distanceKm;
+    groups[key].count++;
+  }
+
+  const sorted = Object.keys(groups).sort();
+  return sorted.map(k => {
+    const g = groups[k];
+    return {
+      period: k,
+      weightedLPer100km: g.distSum > 0 ? (g.fuelSum / (g.distSum / 100)) : 0,
+      totalFuel: g.fuelSum,
+      totalDist: g.distSum,
+      tripCount: g.count
+    };
+  });
+}
+
+function buildConsChart(container, trips, groupMode) {
+  if (consChart) {
+    consChart.dispose();
+    charts = charts.filter(c => c !== consChart);
+  }
+
+  const data = groupTrips(trips, groupMode);
+  if (data.length === 0) return;
+
+  consChart = echarts.init(container, 'dark');
+  charts.push(consChart);
+
+  const periods = data.map(d => d.period);
+  const values = data.map(d => +d.weightedLPer100km.toFixed(1));
+  const colors = values.map(v => v > 10 ? '#f44336' : v > 7 ? '#ff9800' : '#4caf50');
+
+  consChart.setOption({
+    tooltip: {
+      trigger: 'axis',
+      formatter(params) {
+        const p = params[0];
+        const d = data[p.dataIndex];
+        return `<b>${d.period}</b><br/>
+          Consumption: <b>${d.weightedLPer100km.toFixed(1)} L/100km</b><br/>
+          Distance: ${d.totalDist.toFixed(0)} km<br/>
+          Fuel: ${d.totalFuel.toFixed(2)} L<br/>
+          Trips: ${d.tripCount}`;
+      }
+    },
+    grid: { left: '3%', right: '4%', bottom: '3%', top: '8%', containLabel: true },
+    xAxis: {
+      type: 'category',
+      data: periods,
+      axisLabel: { rotate: 45, fontSize: 10 }
+    },
+    yAxis: {
+      type: 'value',
+      name: 'L/100km',
+      axisLabel: { fontSize: 10, formatter: '{value}' },
+      min: 0
+    },
+    series: [{
+      type: 'bar',
+      data: values.map((v, i) => ({
+        value: v,
+        itemStyle: { color: colors[i] }
+      })),
+      barMaxWidth: 40
+    }]
+  });
 }
 
 export function render(container) {
@@ -22,22 +121,35 @@ export function render(container) {
       <h2>Dashboard</h2>
     </div>
     <div class="stats-row" id="statsRow"></div>
-    <div class="dashboard-grid">
+    <div class="dashboard-grid-cons">
       <div class="card">
-        <div class="card-header">Daily Distance</div>
-        <div id="dailyChart" class="chart-container"></div>
+        <div class="card-header">
+          <span>Fuel Consumption Over Time</span>
+          <div class="chart-controls">
+            <button class="btn chart-btn ${currentGroup === 'day' ? 'btn-active' : ''}" data-group="day">Day</button>
+            <button class="btn chart-btn ${currentGroup === 'week' ? 'btn-active' : ''}" data-group="week">Week</button>
+            <button class="btn chart-btn ${currentGroup === 'month' ? 'btn-active' : ''}" data-group="month">Month</button>
+          </div>
+        </div>
+        <div id="consChart" class="chart-container"></div>
       </div>
-      <div class="card">
-        <div class="card-header">Fuel Consumption</div>
-        <div id="fuelChart" class="chart-container"></div>
-      </div>
-      <div class="card">
-        <div class="card-header">Top 5 Longest Trips</div>
-        <div id="topTrips" class="top-trips-list"></div>
-      </div>
-      <div class="card">
-        <div class="card-header">Warning Lights</div>
-        <div id="warningSummary" class="warning-summary"></div>
+      <div class="dashboard-grid">
+        <div class="card">
+          <div class="card-header">Daily Distance</div>
+          <div id="dailyChart" class="chart-container"></div>
+        </div>
+        <div class="card">
+          <div class="card-header">Top 5 Longest Trips</div>
+          <div id="topTrips" class="top-trips-list"></div>
+        </div>
+        <div class="card">
+          <div class="card-header">Fuel vs Distance</div>
+          <div id="fuelChart" class="chart-container"></div>
+        </div>
+        <div class="card">
+          <div class="card-header">Warning Lights</div>
+          <div id="warningSummary" class="warning-summary"></div>
+        </div>
       </div>
     </div>
   `;
@@ -68,6 +180,17 @@ export function render(container) {
     const dateRange = `${minDate.toLocaleDateString('en-GB')} - ${maxDate.toLocaleDateString('en-GB')}`;
     createStatsCard(statsRow, 'Date Range', dateRange, { color: '#9c27b0' });
   }
+
+  buildConsChart(document.getElementById('consChart'), trips, currentGroup);
+
+  document.querySelectorAll('.chart-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      currentGroup = btn.dataset.group;
+      document.querySelectorAll('.chart-btn').forEach(b => b.classList.remove('btn-active'));
+      btn.classList.add('btn-active');
+      buildConsChart(document.getElementById('consChart'), trips, currentGroup);
+    });
+  });
 
   const dailyData = {};
   for (const trip of trips) {
