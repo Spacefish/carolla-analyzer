@@ -489,13 +489,12 @@ body {
   background: #0d1b2a !important;
 }
 
-.leaflet-container::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.35);
-  pointer-events: none;
-  z-index: 300;
+.leaflet-tile-pane {
+  filter: brightness(0.65) saturate(0.5);
+}
+
+.leaflet-tile {
+  outline: 1px solid transparent;
 }
 
 .leaflet-control-zoom a {
