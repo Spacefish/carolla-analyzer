@@ -35,7 +35,7 @@ export function createTripMap(containerId, events, options = {}) {
   if (coords.length > 0) {
     const polyline = L.polyline(coords, {
       color: options.color || '#4fc3f7',
-      weight: options.weight || 3,
+      weight: options.weight || 4,
       opacity: 0.8
     }).addTo(map);
 
@@ -103,7 +103,7 @@ export function createMultiTripMap(containerId, tripsWithEvents, options = {}) {
     const color = colors[i % colors.length];
     const polyline = L.polyline(coords, {
       color,
-      weight: 2,
+      weight: 3,
       opacity: 0.6
     }).addTo(map);
 
