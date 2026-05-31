@@ -1,9 +1,11 @@
+import { getLocale } from '../i18n.js';
+
 export function formatDate(isoStr) {
   if (!isoStr) return '-';
   try {
     const d = new Date(isoStr);
     if (isNaN(d.getTime())) return isoStr;
-    return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    return d.toLocaleDateString(getLocale(), { day: '2-digit', month: 'short', year: 'numeric' });
   } catch {
     return isoStr;
   }
@@ -14,7 +16,7 @@ export function formatTime(isoStr) {
   try {
     const d = new Date(isoStr);
     if (isNaN(d.getTime())) return isoStr;
-    return d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+    return d.toLocaleTimeString(getLocale(), { hour: '2-digit', minute: '2-digit' });
   } catch {
     return isoStr;
   }
@@ -25,7 +27,7 @@ export function formatDateTime(isoStr) {
   try {
     const d = new Date(isoStr);
     if (isNaN(d.getTime())) return isoStr;
-    return d.toLocaleString('en-GB', {
+    return d.toLocaleString(getLocale(), {
       day: '2-digit', month: 'short', year: 'numeric',
       hour: '2-digit', minute: '2-digit'
     });
@@ -67,5 +69,5 @@ export function formatLPer100km(value) {
 
 export function formatNumber(value) {
   if (value === null || value === undefined || isNaN(value)) return '-';
-  return value.toLocaleString('en-GB');
+  return value.toLocaleString(getLocale());
 }

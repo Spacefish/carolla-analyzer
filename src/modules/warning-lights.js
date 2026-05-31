@@ -1,6 +1,7 @@
 import * as echarts from 'echarts';
 import { getState } from '../store.js';
 import { createStatsCard } from '../components/stats-card.js';
+import { t } from '../i18n.js';
 
 let chart = null;
 
@@ -10,29 +11,29 @@ export function render(container) {
 
   container.innerHTML = `
     <div class="module-header">
-      <h2>Warning Lights</h2>
+      <h2>${t('warnings.title')}</h2>
     </div>
     <div class="stats-row" id="warnStats"></div>
     <div class="dashboard-grid">
       <div class="card">
-        <div class="card-header">Warning Timeline</div>
+        <div class="card-header">${t('warnings.timeline')}</div>
         <div id="warnChart" class="chart-container"></div>
       </div>
       <div class="card">
-        <div class="card-header">Warning Details</div>
+        <div class="card-header">${t('warnings.details')}</div>
         <div id="warnTable"></div>
       </div>
     </div>
   `;
 
   const statsRow = document.getElementById('warnStats');
-  createStatsCard(statsRow, 'Total Warnings', warnings.length, { color: '#ff9800' });
+  createStatsCard(statsRow, t('warnings.total'), warnings.length, { color: '#ff9800' });
 
   if (warnings.length > 0) {
     const mileages = warnings.map(w => w.mileageValue).filter(m => m !== null);
     if (mileages.length > 0) {
-      createStatsCard(statsRow, 'Mileage Range', `${Math.min(...mileages)} - ${Math.max(...mileages)} km`, { color: '#f44336' });
-      createStatsCard(statsRow, 'Latest Warning', `${Math.max(...mileages)} km`, { color: '#e91e63' });
+      createStatsCard(statsRow, t('warnings.mileageRange'), `${Math.min(...mileages)} - ${Math.max(...mileages)} km`, { color: '#f44336' });
+      createStatsCard(statsRow, t('warnings.latestWarning'), `${Math.max(...mileages)} km`, { color: '#e91e63' });
     }
 
     chart = echarts.init(document.getElementById('warnChart'), 'dark');
@@ -60,10 +61,10 @@ export function render(container) {
     table.innerHTML = `
       <thead>
         <tr>
-          <th>Date</th>
-          <th>Type</th>
-          <th>Mileage (km)</th>
-          <th>Status</th>
+          <th>${t('warnings.date')}</th>
+          <th>${t('warnings.type')}</th>
+          <th>${t('warnings.mileage')}</th>
+          <th>${t('warnings.status')}</th>
         </tr>
       </thead>
       <tbody>
@@ -72,15 +73,15 @@ export function render(container) {
             <td>${w.warningTimestamp ? w.warningTimestamp.slice(0, 16).replace('T', ' ') : '-'}</td>
             <td>${w.warningType}</td>
             <td>${w.mileageValue !== null ? w.mileageValue.toLocaleString() : '-'}</td>
-            <td>${w.status ? 'Active' : 'Inactive'}</td>
+            <td>${w.status ? t('warnings.active') : t('warnings.inactive')}</td>
           </tr>
         `).join('')}
       </tbody>
     `;
     tableContainer.appendChild(table);
   } else {
-    document.getElementById('warnChart').innerHTML = '<p class="text-muted" style="padding:20px">No warning lights recorded</p>';
-    document.getElementById('warnTable').innerHTML = '<p class="text-muted" style="padding:20px">No warning data available</p>';
+    document.getElementById('warnChart').innerHTML = `<p class="text-muted" style="padding:20px">${t('warnings.noWarnings')}</p>`;
+    document.getElementById('warnTable').innerHTML = `<p class="text-muted" style="padding:20px">${t('warnings.noData')}</p>`;
   }
 
   window.addEventListener('resize', () => { if (chart) chart.resize(); });

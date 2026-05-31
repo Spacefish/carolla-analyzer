@@ -1,4 +1,5 @@
 import L from 'leaflet';
+import { t } from '../i18n.js';
 
 function sortEventsByTimestamp(events) {
   return [...events].sort((a, b) => {
@@ -53,7 +54,7 @@ export function createTripMap(containerId, events, options = {}) {
         color: '#fff',
         weight: 2,
         fillOpacity: 1
-      }).addTo(map).bindTooltip('Start', { permanent: false });
+      }).addTo(map).bindTooltip(t('map.start'), { permanent: false });
 
       L.circleMarker(end, {
         radius: 6,
@@ -61,7 +62,7 @@ export function createTripMap(containerId, events, options = {}) {
         color: '#fff',
         weight: 2,
         fillOpacity: 1
-      }).addTo(map).bindTooltip('End', { permanent: false });
+      }).addTo(map).bindTooltip(t('map.end'), { permanent: false });
     }
 
     map.fitBounds(polyline.getBounds().pad(0.1));

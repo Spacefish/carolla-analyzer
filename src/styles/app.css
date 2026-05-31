@@ -75,6 +75,28 @@ body {
   background: rgba(79, 195, 247, 0.1);
 }
 
+.nav-lang {
+  margin-left: auto;
+  padding-left: 16px;
+}
+
+.lang-select {
+  background: var(--bg-input);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 6px 10px;
+  font-size: 13px;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.lang-select:hover,
+.lang-select:focus {
+  border-color: var(--accent);
+}
+
 /* Main content */
 #mainContent {
   flex: 1;

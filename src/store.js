@@ -5,7 +5,8 @@ const state = {
   canDict: {},
   opDict: {},
   loaded: false,
-  loadedFiles: []
+  loadedFiles: [],
+  locale: 'en'
 };
 
 const subscribers = new Set();

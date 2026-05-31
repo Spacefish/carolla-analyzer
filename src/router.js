@@ -3,6 +3,8 @@ import { getState } from './store.js';
 const routes = {};
 
 let currentModule = null;
+let currentRouteParams = {};
+let containerRef = null;
 
 export function route(pattern, module) {
   routes[pattern] = module;
@@ -32,6 +34,8 @@ export function navigate(hash) {
 }
 
 export function init(container) {
+  containerRef = container;
+
   function handleHash() {
     if (currentModule && currentModule.destroy) {
       currentModule.destroy();
@@ -49,6 +53,7 @@ export function init(container) {
     }
 
     currentModule = match.module;
+    currentRouteParams = match.params;
     container.innerHTML = '';
     if (currentModule.render) {
       currentModule.render(container, match.params);
@@ -57,4 +62,15 @@ export function init(container) {
 
   window.addEventListener('hashchange', handleHash);
   handleHash();
+}
+
+export function reRender() {
+  if (!currentModule || !containerRef) return;
+  if (currentModule.destroy) {
+    currentModule.destroy();
+  }
+  containerRef.innerHTML = '';
+  if (currentModule.render) {
+    currentModule.render(containerRef, currentRouteParams);
+  }
 }

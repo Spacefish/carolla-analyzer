@@ -1,6 +1,7 @@
 import { getState } from '../store.js';
 import { navigate } from '../router.js';
 import { formatDate, formatTime, formatDuration, formatLPer100km } from '../utils/format.js';
+import { t } from '../i18n.js';
 
 let currentSort = { col: 'startTime', dir: 'asc' };
 let currentSearch = '';
@@ -13,22 +14,22 @@ export function render(container) {
 function buildView(container, state) {
   container.innerHTML = `
     <div class="module-header">
-      <h2>Trip List</h2>
+      <h2>${t('tripList.title')}</h2>
       <div class="trip-list-controls">
-        <input type="text" class="search-input" id="tripSearch" placeholder="Search by date..." />
+        <input type="text" class="search-input" id="tripSearch" placeholder="${t('tripList.searchPlaceholder')}" />
       </div>
     </div>
     <div class="table-wrapper">
       <table class="data-table" id="tripTable">
         <thead>
           <tr>
-            <th data-col="startTime">Date &darr;</th>
-            <th data-col="distanceKm">Distance</th>
-            <th data-col="durationSeconds">Duration</th>
-            <th data-col="avgSpeed">Avg Speed</th>
-            <th data-col="maxSpeed">Max Speed</th>
-            <th data-col="fuelL">Fuel</th>
-            <th data-col="fuelLPer100km">L/100km</th>
+            <th data-col="startTime">${t('tripList.date')} &darr;</th>
+            <th data-col="distanceKm">${t('tripList.distance')}</th>
+            <th data-col="durationSeconds">${t('tripList.duration')}</th>
+            <th data-col="avgSpeed">${t('tripList.avgSpeed')}</th>
+            <th data-col="maxSpeed">${t('tripList.maxSpeed')}</th>
+            <th data-col="fuelL">${t('tripList.fuel')}</th>
+            <th data-col="fuelLPer100km">${t('tripList.consumption')}</th>
           </tr>
         </thead>
         <tbody id="tripTableBody"></tbody>
@@ -108,7 +109,7 @@ function renderTable(trips, tbody) {
   }
 
   if (trips.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" class="text-muted">No trips found</td></tr>';
+    tbody.innerHTML = `<tr><td colspan="7" class="text-muted">${t('tripList.noTrips')}</td></tr>`;
   }
 }
 

@@ -1,4 +1,5 @@
 import { getState } from '../store.js';
+import { t } from '../i18n.js';
 
 let currentTab = 'can';
 
@@ -7,23 +8,23 @@ export function render(container) {
 
   container.innerHTML = `
     <div class="module-header">
-      <h2>Data Dictionary</h2>
+      <h2>${t('dictionary.title')}</h2>
       <div class="dict-tabs">
-        <button class="btn ${currentTab === 'can' ? 'btn-active' : ''}" id="tabCan">CAN Data</button>
-        <button class="btn ${currentTab === 'op' ? 'btn-active' : ''}" id="tabOp">Operation Data</button>
+        <button class="btn ${currentTab === 'can' ? 'btn-active' : ''}" id="tabCan">${t('dictionary.canData')}</button>
+        <button class="btn ${currentTab === 'op' ? 'btn-active' : ''}" id="tabOp">${t('dictionary.opData')}</button>
       </div>
     </div>
     <div class="card">
-      <input type="text" class="search-input" id="dictSearch" placeholder="Search by ID or description..." />
+      <input type="text" class="search-input" id="dictSearch" placeholder="${t('dictionary.searchPlaceholder')}" />
     </div>
     <div class="card">
       <div class="table-wrapper">
         <table class="data-table" id="dictTable">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Description</th>
-              <th>Units</th>
+              <th>${t('dictionary.id')}</th>
+              <th>${t('dictionary.description')}</th>
+              <th>${t('dictionary.units')}</th>
             </tr>
           </thead>
           <tbody id="dictTableBody"></tbody>
@@ -75,11 +76,11 @@ function renderTable(state) {
     return `
       <tr>
         <td>${e.id}</td>
-        <td>${e.description || '<span class="text-muted">(unnamed)</span>'}</td>
+        <td>${e.description || `<span class="text-muted">${t('dictionary.unnamed')}</span>`}</td>
         <td>${unitsStr}</td>
       </tr>
     `;
-  }).join('') || '<tr><td colspan="3" class="text-muted">No entries found</td></tr>';
+  }).join('') || `<tr><td colspan="3" class="text-muted">${t('dictionary.noEntries')}</td></tr>`;
 }
 
 export function destroy() {

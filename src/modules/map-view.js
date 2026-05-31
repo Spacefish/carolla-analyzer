@@ -1,6 +1,7 @@
 import { getState, getEventsForTrip } from '../store.js';
 import { navigate } from '../router.js';
 import { createMultiTripMap } from '../components/trip-map.js';
+import { t } from '../i18n.js';
 
 let currentMap = null;
 
@@ -9,7 +10,7 @@ export function render(container) {
 
   container.innerHTML = `
     <div class="module-header">
-      <h2>All Trips Map</h2>
+      <h2>${t('mapView.title')}</h2>
     </div>
     <div class="card">
       <div id="multiTripMap" class="map-container" style="height:70vh"></div>

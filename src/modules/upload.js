@@ -1,6 +1,7 @@
 import { parseZipFile } from '../parser/parser.js';
 import { setData } from '../store.js';
 import { navigate } from '../router.js';
+import { t } from '../i18n.js';
 
 let currentContainer = null;
 
@@ -16,16 +17,16 @@ export function render(container) {
             <line x1="12" y1="3" x2="12" y2="15"/>
           </svg>
         </div>
-        <h2>Upload Car Data</h2>
-        <p class="upload-subtitle">Drop your vehicle data ZIP file here, or click to browse</p>
+        <h2>${t('upload.title')}</h2>
+        <p class="upload-subtitle">${t('upload.subtitle')}</p>
         <div class="upload-dropzone" id="dropzone">
-          <span>Drag & drop or <strong>browse</strong> your ZIP file</span>
+          <span>${t('upload.dropzone')}</span>
         </div>
         <div class="upload-progress" id="uploadProgress" style="display:none">
           <div class="progress-bar">
             <div class="progress-fill" id="progressFill"></div>
           </div>
-          <div class="progress-text" id="progressText">Processing...</div>
+          <div class="progress-text" id="progressText">${t('upload.processing')}</div>
         </div>
         <div class="upload-error" id="uploadError" style="display:none"></div>
       </div>
@@ -40,7 +41,7 @@ export function render(container) {
 
   function handleFile(file) {
     if (!file.name.toLowerCase().endsWith('.zip')) {
-      showError('Please select a ZIP file.');
+      showError(t('upload.selectZip'));
       return;
     }
 
@@ -54,11 +55,11 @@ export function render(container) {
       progressText.textContent = `Processing ${processed}/${total} files...`;
     }).then(result => {
       progressFill.style.width = '100%';
-      progressText.textContent = 'Done! Loading dashboard...';
+      progressText.textContent = t('upload.done');
       setData(result);
       navigate('#dashboard');
     }).catch(err => {
-      showError(`Failed to process ZIP file: ${err.message}`);
+      showError(`${t('upload.failedPrefix')} ${err.message}`);
       progress.style.display = 'none';
       dropzone.style.display = 'block';
     });

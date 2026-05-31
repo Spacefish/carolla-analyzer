@@ -3,6 +3,7 @@ import { getState } from '../store.js';
 import { createStatsCard } from '../components/stats-card.js';
 import { navigate } from '../router.js';
 import { formatDuration, formatLPer100km } from '../utils/format.js';
+import { t, getLocale } from '../i18n.js';
 
 let charts = [];
 let consChart = null;
@@ -83,10 +84,10 @@ function buildConsChart(container, trips, groupMode) {
         const p = params[0];
         const d = data[p.dataIndex];
         return `<b>${d.period}</b><br/>
-          Consumption: <b>${d.weightedLPer100km.toFixed(1)} L/100km</b><br/>
-          Distance: ${d.totalDist.toFixed(0)} km<br/>
-          Fuel: ${d.totalFuel.toFixed(2)} L<br/>
-          Trips: ${d.tripCount}`;
+          ${t('dashboard.consumption')}: <b>${d.weightedLPer100km.toFixed(1)} L/100km</b><br/>
+          ${t('dashboard.distance')}: ${d.totalDist.toFixed(0)} km<br/>
+          ${t('dashboard.fuel')}: ${d.totalFuel.toFixed(2)} L<br/>
+          ${t('dashboard.trips')}: ${d.tripCount}`;
       }
     },
     grid: { left: '3%', right: '4%', bottom: '3%', top: '8%', containLabel: true },
@@ -118,36 +119,36 @@ export function render(container) {
 
   container.innerHTML = `
     <div class="module-header">
-      <h2>Dashboard</h2>
+      <h2>${t('dashboard.title')}</h2>
     </div>
     <div class="stats-row" id="statsRow"></div>
     <div class="dashboard-grid-cons">
       <div class="card">
         <div class="card-header">
-          <span>Fuel Consumption Over Time</span>
+          <span>${t('dashboard.fuelOverTime')}</span>
           <div class="chart-controls">
-            <button class="btn chart-btn ${currentGroup === 'day' ? 'btn-active' : ''}" data-group="day">Day</button>
-            <button class="btn chart-btn ${currentGroup === 'week' ? 'btn-active' : ''}" data-group="week">Week</button>
-            <button class="btn chart-btn ${currentGroup === 'month' ? 'btn-active' : ''}" data-group="month">Month</button>
+            <button class="btn chart-btn ${currentGroup === 'day' ? 'btn-active' : ''}" data-group="day">${t('dashboard.day')}</button>
+            <button class="btn chart-btn ${currentGroup === 'week' ? 'btn-active' : ''}" data-group="week">${t('dashboard.week')}</button>
+            <button class="btn chart-btn ${currentGroup === 'month' ? 'btn-active' : ''}" data-group="month">${t('dashboard.month')}</button>
           </div>
         </div>
         <div id="consChart" class="chart-container"></div>
       </div>
       <div class="dashboard-grid">
         <div class="card">
-          <div class="card-header">Daily Distance</div>
+          <div class="card-header">${t('dashboard.dailyDistance')}</div>
           <div id="dailyChart" class="chart-container"></div>
         </div>
         <div class="card">
-          <div class="card-header">Top 5 Longest Trips</div>
+          <div class="card-header">${t('dashboard.topLongest')}</div>
           <div id="topTrips" class="top-trips-list"></div>
         </div>
         <div class="card">
-          <div class="card-header">Fuel vs Distance</div>
+          <div class="card-header">${t('dashboard.fuelVsDistance')}</div>
           <div id="fuelChart" class="chart-container"></div>
         </div>
         <div class="card">
-          <div class="card-header">Warning Lights</div>
+          <div class="card-header">${t('dashboard.warningLights')}</div>
           <div id="warningSummary" class="warning-summary"></div>
         </div>
       </div>
@@ -171,14 +172,14 @@ export function render(container) {
 
   const avgConsumption = totalKm > 0 ? (totalFuel / (totalKm / 100)) : 0;
 
-  createStatsCard(statsRow, 'Total Trips', trips.length, { color: '#4fc3f7' });
-  createStatsCard(statsRow, 'Total Distance', `${totalKm.toFixed(0)} km`, { color: '#4caf50' });
-  createStatsCard(statsRow, 'Total Fuel', `${totalFuel.toFixed(1)} L`, { color: '#ff9800' });
-  createStatsCard(statsRow, 'Avg Consumption', formatLPer100km(avgConsumption), { color: '#e91e63' });
+  createStatsCard(statsRow, t('dashboard.totalTrips'), trips.length, { color: '#4fc3f7' });
+  createStatsCard(statsRow, t('dashboard.totalDistance'), `${totalKm.toFixed(0)} km`, { color: '#4caf50' });
+  createStatsCard(statsRow, t('dashboard.totalFuel'), `${totalFuel.toFixed(1)} L`, { color: '#ff9800' });
+  createStatsCard(statsRow, t('dashboard.avgConsumption'), formatLPer100km(avgConsumption), { color: '#e91e63' });
 
   if (minDate && maxDate) {
-    const dateRange = `${minDate.toLocaleDateString('en-GB')} - ${maxDate.toLocaleDateString('en-GB')}`;
-    createStatsCard(statsRow, 'Date Range', dateRange, { color: '#9c27b0' });
+    const dateRange = `${minDate.toLocaleDateString(getLocale())} - ${maxDate.toLocaleDateString(getLocale())}`;
+    createStatsCard(statsRow, t('dashboard.dateRange'), dateRange, { color: '#9c27b0' });
   }
 
   buildConsChart(document.getElementById('consChart'), trips, currentGroup);
@@ -263,12 +264,12 @@ export function render(container) {
   const warnSummary = document.getElementById('warningSummary');
   if (warnings.length > 0) {
     warnSummary.innerHTML = `
-      <p><strong>${warnings.length}</strong> warning(s) recorded</p>
-      <p>Type: ${warnings.map(w => w.warningType).filter(Boolean).join(', ') || 'N/A'}</p>
-      <button class="btn btn-small" onclick="location.hash='#warnings'">View Details</button>
+      <p>${t('dashboard.warningsRecorded', { count: warnings.length })}</p>
+      <p>${t('dashboard.warningType')}: ${warnings.map(w => w.warningType).filter(Boolean).join(', ') || 'N/A'}</p>
+      <button class="btn btn-small" onclick="location.hash='#warnings'">${t('dashboard.viewDetails')}</button>
     `;
   } else {
-    warnSummary.innerHTML = '<p class="text-muted">No warning lights recorded</p>';
+    warnSummary.innerHTML = `<p class="text-muted">${t('dashboard.noWarnings')}</p>`;
   }
 
   window.addEventListener('resize', () => {
