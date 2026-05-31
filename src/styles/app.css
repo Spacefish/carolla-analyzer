@@ -489,6 +489,10 @@ body {
   background: #0d1b2a !important;
 }
 
+.leaflet-tile-pane {
+  filter: brightness(0.65) saturate(0.5);
+}
+
 .leaflet-control-zoom a {
   background: var(--bg-card) !important;
   color: var(--text-primary) !important;
