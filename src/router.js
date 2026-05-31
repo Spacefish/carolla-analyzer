@@ -1,3 +1,5 @@
+import { getState } from './store.js';
+
 const routes = {};
 
 let currentModule = null;
@@ -18,7 +20,7 @@ function matchRoute(hash) {
       paramNames.forEach((name, i) => {
         params[name] = match[i + 1];
       });
-      return { module, params };
+      return { pattern, module, params };
     }
   }
 
@@ -37,6 +39,11 @@ export function init(container) {
 
     const match = matchRoute(window.location.hash);
     if (!match) {
+      window.location.hash = '#upload';
+      return;
+    }
+
+    if (!getState().loaded && match.pattern !== 'upload') {
       window.location.hash = '#upload';
       return;
     }
